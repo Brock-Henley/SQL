@@ -90,3 +90,52 @@ FROM BIT_DB.Spotifydata
 WHERE artist_name = 'Olivia Rodrigo'
 GROUP BY track_id;
 
+
+-- Of the artists that appear mulitple times, which one had the highest average popularity?
+
+SELECT artist_name,
+ROUND(AVG(popularity), 2) avg_pop
+FROM BIT_DB.Spotifydata
+WHERE artist_name
+IN (SELECT artist_name
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+HAVING COUNT(artist_name) > 1)
+GROUP BY artist_name
+ORDER BY avg_pop desc;
+
+
+
+-- What artist released the longest song? --
+
+SELECT artist_name,
+track_name,
+duration_ms
+FROM BIT_DB.Spotifydata
+WHERE duration_ms
+IN (SELECT max(duration_ms) FROM BIT_DB.Spotifydata);
+
+-- What are the Track IDs for all songs by Olivia Rodrigo? --
+
+SELECT artist_name,
+track_id,
+track_name 
+FROM BIT_DB.Spotifydata
+WHERE artist_name = 'Olivia Rodrigo'
+GROUP BY track_id;
+
+-- Calculate the average popularity for the artists in the Spotify data table.  Then, for every artist with an average popularity of 90 or above, show their name, average popularity, and label them as a "Top Star".
+
+WITH popularity_average_CTE AS (
+SELECT s.artist_name,
+AVG(s.popularity) AS average_popularity
+FROM SpotifyData s 
+GROUP BY s.artist_name
+)
+ 
+SELECT  artist_name,
+        average_popularity,
+        'Top Star' AS tag
+FROM popularity_average_CTE
+WHERE average_popularity>=90;
+
