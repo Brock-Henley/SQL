@@ -1,0 +1,92 @@
+# For this project, I downloaded Spotify data from Kaggle.
+# Then I created a table to insert Spotify data into.
+# Finally, I performed analytics on the data using SQL. 
+
+# Creating the table:
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL 
+)
+
+#Then I inserted the Spotify Data .csv into the table.
+
+#Next, I explored the data using the following SQL. 
+
+-- Who are the Top 10 artists and their track names based on popularity? --
+
+SELECT artist_name,
+       track_name,
+       popularity
+  FROM BIT_DB.Spotifydata
+ ORDER BY popularity DESC
+ LIMIT 10;
+
+
+-- What is the average popularity, danceability, and energy by artist?
+
+SELECT artist_name,
+avg(popularity),
+avg(danceability),
+avg(energy)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY avg(popularity) desc;
+
+-- What Artists appear on the list mulitple times? How many times do they appear?
+
+SELECT COUNT(artist_name) appearances,
+artist_name
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+HAVING appearances > 1
+ORDER BY appearances desc;
+
+-- Of the artists that appear mulitple times, which one had the highest average popularity?
+
+SELECT artist_name,
+ROUND(AVG(popularity), 2) avg_pop
+FROM BIT_DB.Spotifydata
+WHERE artist_name
+IN (SELECT artist_name
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+HAVING COUNT(artist_name) > 1)
+GROUP BY artist_name
+ORDER BY avg_pop desc;
+
+
+
+-- What artist released the longest song? --
+
+SELECT artist_name,
+track_name,
+duration_ms
+FROM BIT_DB.Spotifydata
+WHERE duration_ms
+IN (SELECT max(duration_ms) FROM BIT_DB.Spotifydata);
+
+-- What are the Track IDs for all songs by Olivia Rodrigo? --
+
+SELECT artist_name,
+track_id,
+track_name 
+FROM BIT_DB.Spotifydata
+WHERE artist_name = 'Olivia Rodrigo'
+GROUP BY track_id;
+
